@@ -18,8 +18,10 @@ small, readable pipeline built around three habits:
 
 **Current status.** Methods verified (8/8 checks). PCA is fit on a reserved half of
 the controls that no test may draw. Calibration at 200 draws: all six methods hold
-their 5% false-positive rate (mean 0.042). Full-scale synthetic and real runs are
-still pending — do not treat the earlier smoke observations as findings.
+their 5% false-positive rate (mean 0.042). Synthetic: spectral H1 finds a ring that
+energy misses. Real data: energy detects every K562 knockdown; RPE1 ZMAT2, CPSF3 and
+the positive control have a robust `diffusion_H1` difference that a Gaussian
+surrogate still explains. That is exploratory, not a validated loop.
 
 ## Layout
 

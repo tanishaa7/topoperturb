@@ -5,10 +5,9 @@ whole project and make decisions: data, statistics, methods, results, papers, an
 versions. Keep it current.
 
 - **Last updated:** 2026-11-01
-- **Repo state:** clean rewrite complete; experiments verified offline (8/8 method
-  checks); PCA fit on a reserved reference half of the controls (§4); **200-draw
-  calibration done, all methods calibrated** (§7a); PCA-vs-gene-space compared (§7b);
-  **full-scale `02`/`03` not yet executed**.
+- **Repo state:** methods verified (8/8); PCA on reserved reference controls (§4);
+  **200-draw calibration, synthetic benchmark and 15-draw real knockdowns done**
+  (§7a, §7c, §7d).
 - **How to maintain:** when data, parameters, methods, results, or versions change,
   update the relevant section *and* add a dated line to the Changelog at the bottom.
   Numbers here must come from a real run — cite the file they came from.
@@ -181,8 +180,8 @@ and tags its outputs (`clouds_50pc.npz`, `calibration_50pc.csv`, …).
 
 ## 7. Results
 
-**Status: full-scale runs PENDING.** Only small verification/method-decision runs
-executed so far. Full audit write-up: [`docs/UPDATE_REPORT.md`](UPDATE_REPORT.md).
+**Status:** calibration (200 draws), synthetic benchmark (40 reps) and real knockdowns
+(15 draws) are **done**. Full audit write-up: [`docs/UPDATE_REPORT.md`](UPDATE_REPORT.md).
 
 ### 7a. Calibration on the revised representation (`results/calibration.csv`)
 
@@ -230,19 +229,89 @@ and the absence of null inflation; gene space is retained as a sensitivity basel
 Leading-H1 lifetimes differ a lot between spaces (K562 control 0.119 vs 0.011), so
 always report the space alongside a loop readout.
 
-### 7c. Earlier smoke observations
+### 7c. Synthetic benchmark (`results/synthetic.csv`, `results/synthetic.png`)
 
-Observed in smoke runs (not final — low replicate counts, and these were run on the
-**old balanced-fit PCA**, so even as smoke signals they must be re-run on the
-controls-fit clouds before being read at all):
-- Synthetic: `diffusion_H1`/`effres_H1` detect the ring where `energy` does not; null and
-  pure translation stay low for PH.
-- Real: `energy` rejects all knockdowns; some genes (e.g. RPL21, CPSF3, pos. control)
-  also show `diffusion_H1`; control-vs-control stays ~0.
-- Features: `signed_change` positive for the ring (loop appeared), as expected.
+Full run: `02_synthetic.py` default, 40 replicates × 12 conditions, 480 draws, 1,085 s,
+no missing p-values. Detection rate = fraction of replicates with permutation p < 0.05.
 
-→ When full runs complete, paste the headline numbers here (detection rates, BH q-values,
-calibration false-positive rates with Wilson CIs) and link the figures.
+| Condition | energy | covariance | euclidean_H0 | euclidean_H1 | diffusion_H1 | effres_H1 |
+|---|---|---|---|---|---|---|
+| null | 0.05 | 0.02 | 0.00 | 0.00 | 0.08 | 0.05 |
+| translation | **1.00** | 0.00 | 0.08 | 0.00 | 0.00 | 0.02 |
+| scaling | **1.00** | **1.00** | 0.05 | 0.20 | 0.05 | 0.12 |
+| anisotropy | 0.02 | 0.50 | **0.98** | 0.57 | 0.05 | 0.38 |
+| heavy_tails | 0.45 | 0.05 | **1.00** | **1.00** | 0.10 | 0.85 |
+| partial_kd | **1.00** | 0.12 | 0.05 | 0.00 | 0.05 | 0.00 |
+| **ring** | 0.02 | 0.02 | 0.38 | 0.02 | **0.75** | **0.85** |
+| bimodal | 0.02 | 0.02 | 0.10 | 0.05 | 0.30 | 0.18 |
+| ring_noise_0.1 | 0.22 | 0.05 | 0.82 | 0.90 | **1.00** | **1.00** |
+| ring_noise_0.2 | 0.08 | 0.05 | 0.30 | 0.02 | **1.00** | **1.00** |
+| ring_noise_0.3 | 0.10 | 0.05 | 0.12 | 0.05 | **0.88** | 0.32 |
+| ring_noise_0.5 | 0.08 | 0.05 | 0.02 | 0.05 | 0.08 | 0.05 |
+
+**Headline.** Spectral H1 finds a ring that energy distance misses (0.75 / 0.85 vs
+0.02), while ignoring a pure translation that energy always flags (0.00 vs 1.00).
+That is the method's intended job. Diffusion H1 stays specific: it does not fire on
+scaling, anisotropy, heavy tails or a partial knockdown, whereas Euclidean PH does.
+Noise: both spectral methods are perfect at 0.1–0.2, diffusion still 0.88 at 0.3,
+both collapse at 0.5. Null rates sit at the 5% they were calibrated to.
+
+Caveat: `effres_H1` fires on heavy tails (0.85) and somewhat on anisotropy (0.38),
+so it is less specific than diffusion. Prefer `diffusion_H1` as the primary shape
+statistic; keep effective resistance as a corroborating spectral method.
+
+### 7d. Real knockdowns (`results/real.csv`, `results/real.png`, `real_features.csv`)
+
+Full run: `03_real.py` default, 15 draws × 15 groups, 225 tests, 666 s, 13 diagrams,
+no missing p-values. Table = fraction of draws with permutation p < 0.05; primary
+draw is BH-corrected across genes within a cell line (pos. control and
+control-vs-control excluded from BH).
+
+| Cell line | group | energy | covariance | euclidean_H0 | euclidean_H1 | diffusion_H1 | effres_H1 |
+|---|---|---|---|---|---|---|---|
+| K562 | POLRMT | **1.00** | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 |
+| K562 | GFM1 | **1.00** | 0.00 | 0.07 | 0.00 | 0.00 | 0.00 |
+| K562 | ZMAT2 | **1.00** | 0.33 | 0.00 | 0.00 | 0.00 | 0.00 |
+| K562 | CPSF3 | **1.00** | 0.33 | 0.00 | 0.00 | 0.13 | 0.13 |
+| K562 | RPL21 | **1.00** | **0.93** | 0.73 | 0.47 | 0.13 | 0.07 |
+| K562 | POLR2B | **1.00** | **1.00** | 0.73 | 0.20 | 0.27 | 0.67 |
+| K562 | DLD | **1.00** | 0.47 | 0.00 | 0.00 | 0.13 | 0.00 |
+| K562 | NCBP2 | **1.00** | **0.87** | 0.33 | 0.20 | 0.40 | 0.00 |
+| K562 | control_vs_control | 0.00 | 0.13 | 0.13 | 0.07 | 0.07 | 0.07 |
+| RPE1 | ZMAT2 | **1.00** | **0.87** | 0.73 | 0.60 | **0.93** | 0.67 |
+| RPE1 | CPSF3 | **1.00** | **1.00** | 0.67 | 0.33 | **1.00** | **0.80** |
+| RPE1 | POLRMT | 0.33 | 0.13 | 0.00 | 0.13 | 0.00 | 0.07 |
+| RPE1 | GFM1 | 0.33 | 0.07 | 0.13 | 0.13 | 0.00 | 0.07 |
+| RPE1 | pos. control | **1.00** | **1.00** | 0.40 | 0.60 | **1.00** | 0.67 |
+| RPE1 | control_vs_control | 0.00 | 0.00 | 0.00 | 0.07 | 0.00 | 0.00 |
+
+BH q on the primary draw, genes only, q < 0.05:
+
+- **energy:** every K562 gene (q = 0.005); RPE1 ZMAT2, CPSF3 (q = 0.010) and GFM1
+  (q = 0.020). RPE1 POLRMT is not (p = 0.070).
+- **covariance:** K562 RPL21, POLR2B (q = 0.020); RPE1 ZMAT2, CPSF3 (q = 0.020).
+- **diffusion_H1:** K562 RPL21 (q = 0.040, but only 13% of draws — not robust);
+  RPE1 ZMAT2 and CPSF3 (q = 0.010, 93% / 100% of draws). Pos. control also 100% of
+  draws (excluded from BH).
+- **effres_H1:** RPE1 ZMAT2 (q = 0.020). POLR2B is 67% of draws but primary q = 0.120.
+
+**Reading, three questions kept separate.**
+
+1. *Differ at all?* Yes, for every K562 knockdown and for RPE1 ZMAT2, CPSF3, GFM1 and
+   the positive control. Energy is the workhorse; control-vs-control is 0.00.
+2. *Beyond a Gaussian?* The covariance-matched surrogate **never** rejects
+   `diffusion_H1` (0/15 draws on every group, including the RPE1 hits). A Gaussian
+   with the same mean and covariance can produce the same diagram distances, so a
+   diagram difference is **not** evidence of a non-Gaussian loop.
+3. *What shape?* Leading-H1 signed changes are small and their bootstrap intervals
+   all cover both signs. Do not claim a loop appeared or vanished.
+
+So the RPE1 ZMAT2 / CPSF3 / pos. control `diffusion_H1` hits are **repeatable
+differences in the persistence diagram**, calibrated and robust across draws, but
+they sit inside a Gaussian-matched null. They are exploratory structure-beyond-mean
+signals, not validated loops. K562 spectral hits are mostly not robust across draws;
+POLR2B / RPL21 / NCBP2 look like covariance / stretch (energy + covariance fire,
+spectral H1 does not stably).
 
 ## 8. Papers / references
 
@@ -266,8 +335,9 @@ huggingface_hub (latest); networkx (verify-only). Pinned in `pyproject.toml`.
 
 - [x] `04_calibration --draws 200` at 30 PCs — done, all methods calibrated (§7a).
 - [ ] `04_calibration --draws 200 --n-pcs 20` and `--n-pcs 50` for stability.
-- [ ] Run full-scale `02/03` on the reference-fit clouds; fill §7 with final numbers
-      + figures (the old smoke observations do not carry over).
+- [x] `02_synthetic` at 40 reps — done (§7c). Spectral H1 finds the ring; energy does not.
+- [x] `03_real 15` — done (§7d). Energy hits all K562 KDs; RPE1 ZMAT2/CPSF3/pos. control
+      have robust `diffusion_H1`, but the Gaussian surrogate does not reject.
 - [ ] `05_compare_spaces --draws 25` — is the RPE1 POLRMT gene-space/PCA gap real?
 - [ ] Close the Damrich et al. gap: side-by-side against the authors' reference
       implementation, and re-check their `t`/`k` defaults and input space against the
@@ -318,3 +388,11 @@ huggingface_hub (latest); networkx (verify-only). Pinned in `pyproject.toml`.
   between the archived poster pipeline (`topoperturb_benchmark/`, `earlier_phases/`)
   and the current package. Stale `requirements.txt` (old pins + kmapper) now points
   at `pyproject.toml`; `CLAUDE.md` lists `05_compare_spaces`.
+- **2026-11-01** — **Synthetic benchmark complete** (40 reps, 1,085 s): spectral H1
+  finds the ring (diffusion 0.75, effres 0.85) that energy misses (0.02) and ignores
+  a pure translation (0.00 vs energy 1.00). Diffusion is more specific than
+  effective resistance (no fire on heavy tails). §7c. `03_real` still pending.
+- **2026-11-01** — **Real knockdowns complete** (15 draws, 666 s): energy q < 0.05 on
+  every K562 gene and RPE1 ZMAT2/CPSF3/GFM1; `diffusion_H1` robust on RPE1 ZMAT2,
+  CPSF3 and pos. control (93–100% of draws) but the Gaussian surrogate never
+  rejects. Control-vs-control energy is 0.00. §7d.
