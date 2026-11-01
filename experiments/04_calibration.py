@@ -1,4 +1,4 @@
-"""Step 2c -- does each test keep its promised false-positive rate?
+"""Step 4 -- does each test keep its promised false-positive rate?
 
 A test at p < 0.05 should reject about 5% of the time when nothing differs. We
 check this on real cells by comparing controls with controls: for each cell line

@@ -85,4 +85,31 @@ reports graph connectivity, distance concentration, 15-NN agreement, null rate,
 sensitivity and runtime. The 30-PC space is primary (better distance contrast, faster,
 no null inflation); gene space is kept as a sensitivity baseline. Leading-H1 lifetimes
 are representation-dependent, so a loop readout must always name its space. Results
-and limits: `docs/UPDATE_REPORT.md` §4.
+and limits: [`RESULTS.md`](RESULTS.md) §5.
+
+## Parameters
+
+| Constant | Value | Meaning | Where |
+|---|---|---|---|
+| `N_PCS` | 30 | principal components | `experiments/config.py` |
+| `N_CELLS` | 150 | cells per group per comparison | `experiments/config.py` |
+| `K_NN` | 15 | kNN graph neighbours (raised by 5 until the graph is connected) | `distances.py` |
+| `T_DIFF` | 8 | diffusion time | `distances.py` |
+| `P_PERM` | 199 | label permutations (p-value resolution 1/200) | `twosample.py` |
+| `M_SURR` | 99 | Gaussian surrogate pairs | `twosample.py` |
+| `SEED` | 42 | global seed | everywhere |
+
+## Verification summary
+
+`python experiments/verify_methods.py` runs eight checks; all pass:
+
+| Component | Checked against | Result |
+|---|---|---|
+| effective resistance | `networkx.resistance_distance` | max error 1.1e-16 |
+| diffusion distance | direct `D⁻¹A` transition-matrix computation, t = 1, 4, 8 | correlation 1 (same up to a global scale, removed by the mean scaling) |
+| both spectral distances | symmetry, zero diagonal, non-negativity | pass |
+| H1 detection | points on a circle | one dominant loop (lifetime 1.32) |
+| PCA reference split | disjointness from testable cells; PCA fitted directly on the reference rows | pass |
+| energy distance | its definition | pass |
+| diagram distance | self-distance 0, symmetry, monotone in bar length | pass |
+| permutation test | identical Gaussians | 2/40 rejections |

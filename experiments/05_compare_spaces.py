@@ -1,4 +1,4 @@
-"""Step 2d -- is the PCA step earning its place? Same tests, two input spaces.
+"""Step 5 -- is the PCA step earning its place? Same tests, two input spaces.
 
 Nothing downstream of step 1 needs PCA: ``distances`` and ``homology`` only ever see
 a point cloud and return a distance matrix, so the gene-expression matrix can be fed

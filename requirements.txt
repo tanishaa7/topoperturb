@@ -1,4 +1,2 @@
-# Pins live in pyproject.toml. Install with:
-#   pip install -e ".[verify]"
-# This file is kept so older notes that mention it still resolve.
+# Exact versions are pinned in pyproject.toml; this installs the package with them.
 -e .[verify]

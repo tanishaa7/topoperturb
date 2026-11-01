@@ -45,7 +45,7 @@ PCA is fit on a **held-out reference half of the controls** (`fit="reference"`).
 defines the axes and is then **retired from the analysis**, the other half is the
 only control material any test may draw. `data.testing_controls` is the single
 place that pool is defined, and `01_prepare_data` stores the mask in the clouds so
-steps 2b and 2c exclude exactly the cells the axes were fitted on.
+steps 3 and 4 exclude exactly the cells the axes were fitted on.
 
 Why go further than fitting on all controls. Fitting on every control removes
 *perturbation* leakage but not the subtler kind: in a control-vs-control null the
@@ -67,7 +67,7 @@ than searching over PCA/graph settings for favourable p-values; `data.embed` exp
 sensitivity run cannot overwrite the primary clouds. The control covariance
 spectrum saved alongside the clouds — computed on the **testing** controls, since
 those are the cells the tests actually see — is what the synthetic benchmark (step
-2a) uses to make its base Gaussian realistic.
+2) uses to make its base Gaussian realistic.
 
 ### Why 30 PCs, when they explain only ~15–21% of variance
 

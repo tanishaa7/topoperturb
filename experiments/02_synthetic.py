@@ -1,4 +1,4 @@
-"""Step 2a -- a synthetic benchmark with known truth.
+"""Step 2 -- a synthetic benchmark with known truth.
 
 We draw pairs of clouds where we control what differs: nothing (null), the mean
 (translation), the scale, the anisotropy, the tails, the population mixture, or

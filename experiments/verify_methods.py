@@ -66,7 +66,7 @@ def check_distance_properties():
         assert np.allclose(D, D.T), name
         assert np.allclose(np.diag(D), 0), name
         assert (D >= 0).all(), name
-    print("diffusion and effective-resistance distances are valid metrics-matrices")
+    print("diffusion and effective-resistance distances are valid distance matrices")
 
 
 def check_circle_topology():

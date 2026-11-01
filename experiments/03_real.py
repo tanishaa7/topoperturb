@@ -1,11 +1,11 @@
-"""Step 2b -- the same battery on the real K562 and RPE1 knockdowns.
+"""Step 3 -- the same battery on the real K562 and RPE1 knockdowns.
 
 For each perturbation we draw ``R`` times: N control cells vs N perturbed cells,
 and run every test. Draw 0 is the primary analysis (BH-corrected across genes
 within a cell line); the fraction of draws that reject shows how robust a hit is.
 A control-vs-control group (controls split in two) is the on-data sanity check.
 
-Beyond the p-values we save the interpretable loop readout (Step 3): the leading
+Beyond the p-values we save the interpretable loop readout: the leading
 H1 lifetime for control vs perturbed, its signed change, and -- for the primary
 draw -- a bootstrap interval and the persistence diagrams themselves.
 
@@ -101,7 +101,8 @@ def feature_report(out):
         fig, (ax1, ax2) = plotting.plt.subplots(1, 2, figsize=(7, 3.4), sharex=True, sharey=True)
         plotting.persistence_diagram(ax1, h0c, h1c, f"{cell_line} control")
         plotting.persistence_diagram(ax2, h0p, h1p, f"{cell_line} {config.symbol(group)}")
-        plotting.save(fig, out / "diagrams" / f"{cell_line}_{config.symbol(group)}.png")
+        name = config.symbol(group).replace(". ", "_")      # "pos. control" -> "pos_control"
+        plotting.save(fig, out / "diagrams" / f"{cell_line}_{name}.png")
     pd.DataFrame(rows).to_csv(out / "real_features.csv", index=False)
 
 

@@ -1,133 +1,175 @@
 # TopoPerturb
 
-Does knocking down a gene change the **shape** of a single-cell population — a loop
-or a split into clusters — beyond a simple shift in mean or covariance?
+**Question.** When you knock down a gene with CRISPRi, does the *shape* of the cell
+population change (for example, does a loop or a separate cluster appear or
+disappear), or does it only move and stretch?
 
-TopoPerturb compares control and perturbed cells from CausalBench (K562, RPE1) with
-**persistent homology on spectral graph distances** (Damrich, Berens & Kobak,
-NeurIPS 2024), against conventional two-sample tests (energy distance). It is a
-small, readable pipeline built around three habits:
+Most perturbation analyses compare means, or whole distributions with something like
+energy distance. Those tests can tell you that two populations differ, but not whether
+the difference is topological. This project tests for shape directly with persistent
+homology (PH), computed on spectral graph distances as proposed by Damrich, Berens and
+Kobak (NeurIPS 2024). We compare it with conventional two-sample tests on the K562 and
+RPE1 Perturb-seq data distributed with CausalBench.
 
-1. **Get the data right first** — one verified source, an explicit audit, stated limits.
-2. **Verify every method against a library**, and keep the three scientific questions
-   (*differ? / beyond Gaussian? / what shape changed?*) separate.
-3. **Calibrate on negative controls** before trusting any detection.
+## Short answer
 
-> A significant diagram difference is exploratory evidence of a structural change,
-> not a validated biological loop. See [`docs/METHODS.md`](docs/METHODS.md).
+- **The tests are calibrated.** Over 1,200 control-vs-control draws, all six methods
+  reject at about the nominal 5% (mean 4.2%, none significantly above 5%).
+- **The method works when there is a shape to find.** On synthetic data, spectral H1
+  detects a ring that energy distance misses (75–85% vs 2%), and it ignores a pure mean
+  shift that energy always flags.
+- **On the real knockdowns, we found no shape change beyond a Gaussian.** Energy
+  distance detects all 8 K562 knockdowns and 3 of 4 RPE1 ones. Diffusion-distance H1
+  fires reproducibly on RPE1 ZMAT2, CPSF3 and the positive control (93–100% of draws),
+  but a Gaussian with matched mean and covariance produces the same diagram
+  differences. We read these as changes in spread, not new loops.
 
-**Current status.** Methods verified (8/8 checks). PCA is fit on a reserved half of
-the controls that no test may draw. Calibration at 200 draws: all six methods hold
-their 5% false-positive rate (mean 0.042). Synthetic: spectral H1 finds a ring that
-energy misses. Real data: energy detects every K562 knockdown; RPE1 ZMAT2, CPSF3 and
-the positive control have a robust `diffusion_H1` difference that a Gaussian
-surrogate still explains. That is exploratory, not a validated loop.
+Full tables and discussion are in [`docs/RESULTS.md`](docs/RESULTS.md).
 
-## Layout
+## Data
+
+We use the prepared CausalBench tables (Chevalley et al., 2025), which are built from
+the Replogle et al. (2022) Perturb-seq screens. They come from Hugging Face
+[`huggingbahl21/causalbench`](https://huggingface.co/datasets/huggingbahl21/causalbench),
+pinned to revision `068c7902f1740b8d653033c3decfed2c7156fa3d` and checked by SHA-256.
+The values are already library-normalised, `log1p`-transformed and efficacy-filtered
+upstream.
+
+| Cell line | genes | controls | knockdowns studied |
+|---|---|---|---|
+| K562 | 622 | 10,691 | POLRMT, GFM1, ZMAT2, CPSF3, RPL21, POLR2B, DLD, NCBP2 |
+| RPE1 | 383 | 11,485 | ZMAT2, CPSF3, POLRMT, GFM1 + a positive control (ENSG00000174243) |
+
+The tables have no guide, batch or barcode labels, so permutations cannot be
+stratified. See [`docs/DATA.md`](docs/DATA.md) for what that means.
+
+## Methods
+
+1. **Representation.** We project the cells onto 30 PCs. The PCA is fitted on a random
+   half of the controls, and those cells are never used in any test. This keeps the
+   axes independent of every comparison made in them.
+2. **Distances.** We build a symmetric 15-nearest-neighbour graph and compute
+   diffusion distance (t = 8) and effective-resistance distance (with the von Luxburg
+   correction). Plain Euclidean distance is a baseline. Each distance matrix is divided
+   by its mean so that a change in size alone does not look like a change in shape.
+3. **Persistent homology.** We compute Vietoris–Rips diagrams (H0 for clusters, H1 for
+   loops) with `ripser`, and compare diagrams with the Wasserstein distance from
+   `persim`.
+4. **Tests.** Six statistics: energy distance, covariance difference (Frobenius norm),
+   Euclidean H0, Euclidean H1, diffusion H1 and effective-resistance H1. We ask three
+   separate questions:
+   - *Do the populations differ?* A permutation test with 199 shuffles.
+   - *Is the difference larger than a Gaussian would give?* A surrogate test against
+     99 pairs of Gaussian clouds with the same means and covariances.
+   - *What changed?* The leading H1 lifetime, its signed change, and a bootstrap 95%
+     interval.
+5. **Calibration and benchmarks.** We run control-vs-control draws at 75, 100 and 150
+   cells per group, a synthetic benchmark with known ground truth (12 conditions), and
+   15 repeated draws per real knockdown, BH-corrected within each cell line.
+
+Formulas, parameters and the checks behind each step are in
+[`docs/METHODS.md`](docs/METHODS.md). Before any experiment, each component is checked
+against an independent reference (`experiments/verify_methods.py`, 8 checks). For
+example, effective resistance matches `networkx` to 1e-16.
+
+## Results at a glance
+
+| | |
+|---|---|
+| ![Synthetic benchmark](results/synthetic.png) | ![Real knockdowns](results/real.png) |
+| Synthetic: % of replicates with p < 0.05. Diffusion H1 responds to rings and ignores mean, scale and tail changes; energy does the opposite. | Real data: % of 15 draws with p < 0.05; `*` = BH q < 0.05 on the primary draw (the positive control and control rows are left out of the correction). |
+
+## Repository layout
 
 ```text
-topoperturb/        the package
-  data.py           CausalBench load + PCA on a reserved reference-control subset
-  distances.py      diffusion & effective-resistance distances on a kNN graph
-  homology.py       persistence diagrams (ripser) + diagram distance (persim)
-  twosample.py      energy / permutation / Gaussian-surrogate tests
-  features.py       interpretable loop readout (lifetime, signed change, bootstrap CI)
-  plotting.py       figures
-experiments/        thin drivers; each saves one table + one figure to results/
-  01_prepare_data   fetch, audit, 20/30/50-PC clouds
-  02_synthetic      synthetic benchmark with known truth
-  03_real           real K562 / RPE1 knockdowns
-  04_calibration    control-vs-control false-positive rates
-  05_compare_spaces 30-PC vs raw gene-space baseline
-  verify_methods    independent reference checks
-docs/               CONTEXT.md (living source of truth), DATA.md, METHODS.md,
-                    UPDATE_REPORT.md (audit + calibration write-up)
-results/            tables and figures (git-tracked)
-data/               prepared clouds (gitignored; regenerate with step 1)
-archive/            earlier exploratory phases (not imported by the pipeline)
+topoperturb/          the package
+  data.py             download, audit, cell selection, PCA on reserved controls
+  distances.py        kNN graph, diffusion and effective-resistance distances
+  homology.py         persistence diagrams and diagram distance
+  twosample.py        energy, permutation and Gaussian-surrogate tests
+  features.py         leading H1 lifetime, signed change, bootstrap interval
+  plotting.py         figure helpers
+experiments/
+  01_prepare_data.py  build the PCA clouds (also 20/50-PC variants)
+  02_synthetic.py     synthetic benchmark
+  03_real.py          real K562 / RPE1 knockdowns + persistence diagrams
+  04_calibration.py   control-vs-control false-positive rates
+  05_compare_spaces.py  30 PCs vs raw gene space
+  verify_methods.py   checks against independent references
+docs/                 DATA.md, METHODS.md, RESULTS.md
+results/              all tables and figures reported above
+archive/              earlier exploratory code, plus the expression caches used offline
 ```
 
-## Install
+## Reproducing
+
+Requires Python 3.9. Pinned versions are in `pyproject.toml`.
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[verify]"
-python experiments/verify_methods.py      # 8 checks vs networkx / definitions
+python experiments/verify_methods.py
 ```
 
-Pinned versions live in `pyproject.toml` (Python 3.9).
-
-## Reproduce
-
-Each experiment is one command and writes its outputs to `results/`. The prepared
-PCA clouds live in `data/` and are **gitignored**, so after a clone you must run
-step 1 before anything else. The expression caches in `archive/data/` *are* in the
-repo, so step 1 can stay offline.
-
-Run them in this order (one at a time — each uses 8 worker processes):
+The prepared clouds in `data/` are not tracked in git, so build them first. The
+expression caches in `archive/data/` let this step run offline in a few seconds.
+Leave out `--cache` to download from Hugging Face instead.
 
 ```bash
-# 1. Build the 30-PC clouds from the archived expression matrices (~seconds)
 python experiments/01_prepare_data.py --cache 'archive/data/expression_{cell_line}.npz'
-
-# 2c. Calibration — already done at 200 draws; rerun only if you change the clouds
-python experiments/04_calibration.py          # ~20 min; -> results/calibration.*
-
-# 2a. Synthetic benchmark with known truth (geometry vs topology)
-python experiments/02_synthetic.py            # ~12 min; -> results/synthetic.{csv,png}
-
-# 2b. Real K562 / RPE1 knockdowns + loop readout and diagrams
-python experiments/03_real.py                 # ~8 min; -> results/real.{csv,png}, real_features.csv, diagrams/
 ```
 
-Optional extras, same style:
+Then run the experiments. Each one uses 8 worker processes and writes to `results/`.
+The times are rough figures for an 8-core laptop.
 
 ```bash
-# other PC counts (tagged files; do not overwrite the primary 30-PC clouds)
-python experiments/01_prepare_data.py --n-pcs 20 --cache 'archive/data/expression_{cell_line}.npz'
-python experiments/04_calibration.py --n-pcs 20
-
-# 30-PC space vs raw gene space (same cells and permutations)
+python experiments/04_calibration.py      # ~20 min
+python experiments/02_synthetic.py        # ~18 min
+python experiments/03_real.py             # ~11 min
 python experiments/05_compare_spaces.py --cache 'archive/data/expression_{cell_line}.npz'
-
-# Hugging Face instead of the archive cache (downloads once, checksum-verified)
-python experiments/01_prepare_data.py
 ```
 
-Steps 2–4 take tens of minutes at full settings on 8 cores. Pass a smaller repeat
-count (e.g. `python experiments/02_synthetic.py 10`) for a quick look, and
-`--output results/local` to avoid overwriting saved results.
+For a quick check, pass fewer repeats (`02_synthetic.py 10`, `03_real.py 5`,
+`04_calibration.py --draws 50`) and `--output results/local` so you don't overwrite
+the saved results. All randomness is seeded (seed 42).
 
-## Representation
+## Limitations
 
-PCA is **optional for the method** — every distance and test takes any point cloud —
-and **required as a choice of input space**. The primary representation is 30 PCs
-fitted on a reserved **reference half of the controls**; those cells are then
-excluded from every comparison (`data.reference_split`). Fitting on the cells later
-tested would make the null depend on the representation.
+- These are exploratory results. A significant diagram distance means the
+  persistence diagrams differ, not that a biological loop exists.
+- Without guide or batch labels we cannot rule out batch structure, and the upstream
+  efficacy filter means we only see strongly responding cells.
+- The spectral distances are checked against their mathematical definitions, not
+  side by side with the authors' reference code.
 
-A 5-draw comparison against raw gene space (622 / 383 genes) keeps 30 PCs as
-primary: about twice the distance contrast, about 1.4× faster, no null inflation.
-Gene space is retained as a sensitivity baseline. Details: `docs/UPDATE_REPORT.md`.
+More detail is in [`docs/RESULTS.md`](docs/RESULTS.md#6-limitations-and-open-work).
 
-## What to read first
+## References
 
-- [`docs/CONTEXT.md`](docs/CONTEXT.md) — the living single-source-of-truth: data,
-  statistics, method parameters, results, papers, and versions, with a changelog.
-- [`docs/UPDATE_REPORT.md`](docs/UPDATE_REPORT.md) — PCA-independence audit,
-  Damrich verification status, 20/30/50-PC comparison, calibration numbers.
-- [`docs/DATA.md`](docs/DATA.md) — what the data is, the upstream efficacy filter,
-  and why there is no guide/batch stratification.
-- [`docs/METHODS.md`](docs/METHODS.md) — every formula, its reference, and how it is
-  checked.
-- `results/calibration.png` — control-vs-control false-positive rates (done).
-- `results/synthetic.png` and `results/real.png` — headline figures, once steps 2a/2b
-  have been run.
-
-## Data
-
-Hugging Face [`huggingbahl21/causalbench`](https://huggingface.co/datasets/huggingbahl21/causalbench),
-pinned revision `068c7902f1740b8d653033c3decfed2c7156fa3d`. Prepared tables: already
-library-normalised and `log1p`, efficacy-filtered. The only grouping label is
-`intervention` — no guide, batch, or barcode, so permutations cannot be stratified.
-Full limits in `docs/DATA.md`.
+1. Damrich, S., Berens, P. & Kobak, D. (2024). Persistent homology for
+   high-dimensional data based on spectral methods. *NeurIPS 2024*. arXiv:2311.03087.
+2. Chevalley, M., Roohani, Y., Mehrjou, A., Leskovec, J. & Schwab, P. (2025).
+   A large-scale benchmark for network inference from single-cell perturbation data
+   (CausalBench). *Communications Biology*.
+3. Replogle, J. M. et al. (2022). Mapping information-rich genotype–phenotype
+   landscapes with genome-scale Perturb-seq. *Cell* 185(14), 2559–2575.
+4. Coifman, R. R. & Lafon, S. (2006). Diffusion maps. *Applied and Computational
+   Harmonic Analysis* 21(1), 5–30.
+5. von Luxburg, U., Radl, A. & Hein, M. (2014). Hitting and commute times in large
+   random neighborhood graphs. *JMLR* 15, 1751–1798.
+6. Székely, G. J. & Rizzo, M. L. (2013). Energy statistics: a class of statistics
+   based on distances. *Journal of Statistical Planning and Inference* 143(8),
+   1249–1272.
+7. Peidli, S. et al. (2024). scPerturb: harmonized single-cell perturbation data.
+   *Nature Methods* 21, 531–540.
+8. Barry, T. et al. (2024). Robust differential expression testing for single-cell
+   CRISPR screens at low multiplicity of infection. *Genome Biology* 25, 124.
+9. Fasy, B. T. et al. (2014). Confidence sets for persistence diagrams. *Annals of
+   Statistics* 42(6), 2301–2339.
+10. Bauer, U. (2021). Ripser: efficient computation of Vietoris–Rips persistence
+    barcodes. *Journal of Applied and Computational Topology* 5, 391–423; and
+    Tralie, C., Saul, N. & Bar-On, R. (2018). Ripser.py. *JOSS* 3(29), 925.
+11. Benjamini, Y. & Hochberg, Y. (1995). Controlling the false discovery rate.
+    *JRSS B* 57(1), 289–300.
+12. Phipson, B. & Smyth, G. K. (2010). Permutation p-values should never be zero.
+    *Statistical Applications in Genetics and Molecular Biology* 9(1).
