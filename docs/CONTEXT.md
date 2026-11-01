@@ -186,18 +186,25 @@ executed so far. Full audit write-up: [`docs/UPDATE_REPORT.md`](UPDATE_REPORT.md
 
 ### 7a. Calibration on the revised representation (`results/calibration.csv`)
 
-`04_calibration --draws 50` on the reference-fit 30-PC clouds, drawing only from the
-testing controls. 36 rows (2 lines × 3 sizes × 6 methods):
+**Final run:** `04_calibration --draws 200` on the reference-fit 30-PC clouds, drawing
+only from the testing controls; 1,200 draws, no missing p-values, 1,149 s. 36 rows
+(2 lines × 3 sizes × {75,100,150} × 6 methods):
 
-- false-positive rate at p < 0.05: **mean 0.041**, range 0.000–0.120;
-- **1/36** rows with a Wilson interval excluding 0.05 from above (energy, RPE1, n=75);
-- per-method mean FPR: covariance 0.037, diffusion_H1 0.040, effres_H1 0.033,
-  energy 0.063, euclidean_H0 0.040, euclidean_H1 0.033;
-- p-value uniformity: **2/36** KS tests below 0.05, i.e. chance level (~1.8 expected).
+- false-positive rate at p < 0.05: **mean 0.042**, range 0.015–0.075;
+- **0/36** rows with a Wilson interval lying entirely above 0.05 — no method is
+  anti-conservative at any size in either line;
+- 2/36 rows lie entirely below 0.05 (euclidean_H0 and euclidean_H1, RPE1, n=100, both
+  0.015): slightly conservative, which costs power but not validity;
+- per-method mean FPR: covariance 0.048, diffusion_H1 0.043, effres_H1 0.042,
+  energy 0.044, euclidean_H0 0.042, euclidean_H1 0.032;
+- worst row: covariance, RPE1, n=100, 0.075 (Wilson 0.046–0.120, includes 0.05);
+- p-value uniformity: **1/36** KS tests below 0.05 (covariance, K562, n=75, p=0.034),
+  under the ~1.8 expected by chance.
 
-No method shows false-positive inflation. **Caveat:** 50 draws resolve a 5% rate only
-to ±~6 points and the draws share one control pool (Wilson intervals are lower
-bounds), so this says "not visibly broken", not "calibrated". Quote the 200-draw run.
+**Conclusion: all six methods are calibrated on the revised representation.** The
+50-draw preliminary run's one outlier (energy, RPE1, n=75, 0.12) came down to 0.065
+at 200 draws, i.e. it was sampling noise. Caveat that remains: the draws share one
+control pool, so the Wilson intervals are lower bounds on the true uncertainty.
 
 ### 7b. Is PCA the right input space? (`results/space_{comparison,diagnostics}.csv`)
 
@@ -257,8 +264,8 @@ huggingface_hub (latest); networkx (verify-only). Pinned in `pyproject.toml`.
 
 ## 10. Open decisions / TODO
 
-- [ ] `04_calibration --draws 200` — the quotable calibration numbers (50-draw run in
-      §7a is preliminary). Then `--n-pcs 20` and `--n-pcs 50` for stability.
+- [x] `04_calibration --draws 200` at 30 PCs — done, all methods calibrated (§7a).
+- [ ] `04_calibration --draws 200 --n-pcs 20` and `--n-pcs 50` for stability.
 - [ ] Run full-scale `02/03` on the reference-fit clouds; fill §7 with final numbers
       + figures (the old smoke observations do not carry over).
 - [ ] `05_compare_spaces --draws 25` — is the RPE1 POLRMT gene-space/PCA gap real?
@@ -304,3 +311,6 @@ huggingface_hub (latest); networkx (verify-only). Pinned in `pyproject.toml`.
   vs raw gene space on identical cells/permutations; PCA kept as primary on distance
   contrast (~2×), runtime (~1.4×) and no null inflation — §7b. Still pending: 200-draw
   calibration, full `02`/`03`, and a side-by-side against the Damrich et al. code.
+- **2026-11-01** — **200-draw calibration complete** (30 PCs, 1,149 s): mean FPR 0.042,
+  0/36 rows significantly above 5%, 1/36 KS uniformity failures. All six methods
+  calibrated; the 50-draw outlier was noise. §7a and `UPDATE_REPORT.md` §6 updated.

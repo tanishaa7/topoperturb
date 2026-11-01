@@ -5,10 +5,10 @@ representation's independence from the tests, check whether PCA is the right inp
 space at all, and get calibration on the record before any findings are read.
 No new algorithms were added. All numbers below name the file they came from.
 
-**Status of the numbers:** the calibration run is 50 draws per size (not the 200 the
-script defaults to) and the space comparison is 5 draws per group. Both are small,
-reproducible runs meant to support *method* decisions. They are **not** the study's
-findings, and §7 of `CONTEXT.md` stays marked pending.
+**Status of the numbers:** the calibration (§6) is the full 200-draw run and can be
+quoted. The space comparison (§4) is 5 draws per group — a small, reproducible run
+meant to support a *method* decision, not a finding. The real-data and synthetic
+results are still pending.
 
 ---
 
@@ -145,23 +145,24 @@ this is one command per PC count (§7).
 
 ## 6. Calibration on the revised representation
 
-`04_calibration --draws 50` on the reference-fit 30-PC clouds, drawing only from the
-testing controls (`results/calibration.csv`, 36 cell-line × size × method rows):
+`04_calibration --draws 200` on the reference-fit 30-PC clouds, drawing only from the
+testing controls (`results/calibration.csv`; 1,200 draws, 36 cell-line × size × method
+rows, no missing p-values):
 
-- False-positive rate at p < 0.05: **mean 0.041**, range 0.000–0.120.
-- Only **1 of 36** rows has a Wilson interval excluding 0.05 from above (energy,
-  RPE1, size 75: 0.12).
-- Per method, mean FPR: covariance 0.037, diffusion_H1 0.040, effres_H1 0.033,
-  energy 0.063, euclidean_H0 0.040, euclidean_H1 0.033.
-- p-value uniformity (KS vs Uniform(0,1)): **2 of 36** below 0.05, which is what
-  chance alone predicts (~1.8), with mean KS p ≈ 0.38–0.67 per method.
+- False-positive rate at p < 0.05: **mean 0.042**, range 0.015–0.075.
+- **0 of 36** rows have a Wilson interval lying entirely above 0.05.
+- 2 of 36 lie entirely below it (euclidean_H0/H1, RPE1, n=100, both 0.015) —
+  slightly conservative, a power cost rather than a validity problem.
+- Per method, mean FPR: covariance 0.048, diffusion_H1 0.043, effres_H1 0.042,
+  energy 0.044, euclidean_H0 0.042, euclidean_H1 0.032.
+- p-value uniformity (KS vs Uniform(0,1)): **1 of 36** below 0.05, under the ~1.8
+  chance predicts.
 
-**Reading.** No method shows false-positive inflation on the revised representation;
-the PH features in particular sit at or below nominal. Two caveats stand: the draws
-reuse cells from one control pool, so the Wilson intervals **understate** uncertainty
-and should be read as lower bounds; and 50 draws resolve a 5% rate only coarsely
-(±~6 points), so this licenses "not visibly broken", not "calibrated to 5%". The
-200-draw run is the one to quote.
+**Reading.** All six methods hold their nominal 5% rate on the revised
+representation, including both spectral PH features. A preliminary 50-draw run had
+one outlier (energy, RPE1, n=75, 0.12); at 200 draws it is 0.065, so it was sampling
+noise. One caveat stands: the draws reuse cells from one control pool, so the Wilson
+intervals **understate** uncertainty and should be read as lower bounds.
 
 ## 7. Recommendation and what remains
 
@@ -174,7 +175,7 @@ primary, and always state the space alongside any H1 lifetime.
 
 Remaining work, in order:
 
-1. `04_calibration --draws 200` (~25 min) — the quotable calibration numbers.
+1. ~~`04_calibration --draws 200`~~ — done (§6).
 2. `04_calibration --draws 200 --n-pcs 20` and `--n-pcs 50` — calibration stability
    across representations.
 3. `03_real` and `02_synthetic` at full scale on the reference-fit clouds; §7 of
