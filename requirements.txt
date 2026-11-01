@@ -1,10 +1,4 @@
-# Tested with Python 3.9.6
-numpy==1.26.4
-scipy==1.12.0
-pandas==2.2.3
-scikit-learn==1.6.1
-matplotlib==3.8.3
-ripser==0.6.15
-persim==0.4.1
-kmapper==2.1.0
-huggingface_hub==0.36.2
+# Pins live in pyproject.toml. Install with:
+#   pip install -e ".[verify]"
+# This file is kept so older notes that mention it still resolve.
+-e .[verify]

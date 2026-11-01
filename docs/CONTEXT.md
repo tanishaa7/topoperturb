@@ -6,9 +6,9 @@ versions. Keep it current.
 
 - **Last updated:** 2026-11-01
 - **Repo state:** clean rewrite complete; experiments verified offline (8/8 method
-  checks); PCA fit on a reserved reference half of the controls (§4); calibration run
-  at 50 draws and PCA-vs-gene-space compared (§7a–b); **full-scale runs not yet
-  executed**.
+  checks); PCA fit on a reserved reference half of the controls (§4); **200-draw
+  calibration done, all methods calibrated** (§7a); PCA-vs-gene-space compared (§7b);
+  **full-scale `02`/`03` not yet executed**.
 - **How to maintain:** when data, parameters, methods, results, or versions change,
   update the relevant section *and* add a dated line to the Changelog at the bottom.
   Numbers here must come from a real run — cite the file they came from.
@@ -314,3 +314,7 @@ huggingface_hub (latest); networkx (verify-only). Pinned in `pyproject.toml`.
 - **2026-11-01** — **200-draw calibration complete** (30 PCs, 1,149 s): mean FPR 0.042,
   0/36 rows significantly above 5%, 1/36 KS uniformity failures. All six methods
   calibrated; the 50-draw outlier was noise. §7a and `UPDATE_REPORT.md` §6 updated.
+- **2026-11-01** — README rewritten: it still contained an unresolved merge conflict
+  between the archived poster pipeline (`topoperturb_benchmark/`, `earlier_phases/`)
+  and the current package. Stale `requirements.txt` (old pins + kmapper) now points
+  at `pyproject.toml`; `CLAUDE.md` lists `05_compare_spaces`.

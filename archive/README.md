@@ -11,6 +11,7 @@ pipeline described in the top-level `README.md`. Nothing here is imported by the
 - `data/` — recovered, pre-parsed expression matrices and PCA clouds, plus the
   original metadata/provenance. The current pipeline instead fetches the prepared
   tables from Hugging Face (see `docs/DATA.md`). The expression matrices here can
-  still be used offline via `01_prepare_data.py --cache archive/data/expression_<line>.npz`.
+  still be used offline via
+  `01_prepare_data.py --cache 'archive/data/expression_{cell_line}.npz'`.
 - `docs/` — the earlier research status, data guide, verification record, and the
   historical `archive.zip`.

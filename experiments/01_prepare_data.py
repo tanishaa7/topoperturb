@@ -9,8 +9,8 @@ record per line, plus a cross-line summary table and figure.
 
     python experiments/01_prepare_data.py                 # both lines, from Hugging Face
     python experiments/01_prepare_data.py --cell-line k562
-    python experiments/01_prepare_data.py --cache data/expression_k562.npz --cell-line k562
-    python experiments/01_prepare_data.py --cache 'data/expression_{cell_line}.npz'
+    python experiments/01_prepare_data.py --cache archive/data/expression_k562.npz --cell-line k562
+    python experiments/01_prepare_data.py --cache 'archive/data/expression_{cell_line}.npz'
 
 The ``--cache`` option reads an already-parsed expression matrix instead of the
 large TSV, so the pipeline runs offline and gives identical PCA clouds. A

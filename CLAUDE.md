@@ -8,9 +8,10 @@ Changelog line.
 
 Quick orientation:
 - Package: `topoperturb/` (data, distances, homology, twosample, features, plotting).
-- Experiments: `experiments/01_prepare_data … 04_calibration`, plus `verify_methods`.
+- Experiments: `experiments/01_prepare_data … 05_compare_spaces`, plus `verify_methods`.
 - Method formulas/references and the three separated questions: `docs/METHODS.md`.
 - Data provenance and its limits (no guide/batch): `docs/DATA.md`.
+- Audit + calibration write-up: `docs/UPDATE_REPORT.md`.
 - `archive/` is earlier work, not imported by the current pipeline.
 
 Environment: `.venv/` (Python 3.9, pinned stack in `pyproject.toml`).
