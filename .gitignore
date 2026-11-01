@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+.DS_Store
+results/local/
+results/check/
+data/cache/
+
+# Prepared PCA clouds are reproducible from step 1
+data/k562/
+data/rpe1/
+
+# Packaging
+*.egg-info/

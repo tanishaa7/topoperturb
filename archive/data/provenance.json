@@ -1,0 +1,145 @@
+{
+  "recovered_on": "2026-11-01",
+  "scripts": {
+    "Earlier Phases/earlier_phases/p2_surr_spectral.py": {
+      "archive_member": "recovered_sources/Earlier Phases/earlier_phases/p2_surr_spectral.py",
+      "sha256": "b7a662d30962f67d3bfee002315e62db492f73450a003ed766ff2236750fd49c",
+      "kept_as": "src/earlier/surrogates.py"
+    },
+    "Earlier Phases/earlier_phases/ph_common.py": {
+      "archive_member": "recovered_sources/Earlier Phases/earlier_phases/ph_common.py",
+      "sha256": "4d3d27a078e47ef62489e61712b2e1f9998a86893732acd7fbc8cd3f1a1af3dd",
+      "kept_as": "src/earlier/common.py"
+    },
+    "Earlier Phases/earlier_phases/interpret.py": {
+      "archive_member": "recovered_sources/Earlier Phases/earlier_phases/interpret.py",
+      "sha256": "0fdc70a69a8f77321d0a47991d47256a57bd1d74f8c11d9aed461f23cbfa421c",
+      "kept_as": "src/earlier/interpretation.py"
+    },
+    "Earlier Phases/earlier_phases/p2_rpe1.py": {
+      "archive_member": "recovered_sources/Earlier Phases/earlier_phases/p2_rpe1.py",
+      "sha256": "2d148b0627e0046ee093c060c0a4eb3840aa693e8082ced967bebeb484a4d97d",
+      "kept_as": "src/earlier/rpe1.py"
+    },
+    "Earlier Phases/earlier_phases/perm2000.py": {
+      "archive_member": "recovered_sources/Earlier Phases/earlier_phases/perm2000.py",
+      "sha256": "b4f3891570c3f3b70d52e82ba49e7f0f554d4dd4386602f6a9a0071e2c7715a0",
+      "kept_as": "src/earlier/permutations.py"
+    },
+    "Earlier Phases/earlier_phases/p2_ph.py": {
+      "archive_member": "recovered_sources/Earlier Phases/earlier_phases/p2_ph.py",
+      "sha256": "d368309af2e0beb5d732ff8d400075f7aa2337a364db0df92bdbeb87bbfdc783",
+      "kept_as": "src/earlier/normalized_ph.py"
+    },
+    "Earlier Phases/earlier_phases/run_ph.py": {
+      "archive_member": "recovered_sources/Earlier Phases/earlier_phases/run_ph.py",
+      "sha256": "cd5283e020e4bf1c2b2fead289eca43e998508e344eec8b75a370dcf136b1534",
+      "kept_as": "src/earlier/initial_ph.py"
+    },
+    "Earlier Phases/earlier_phases/p2_conv.py": {
+      "archive_member": "recovered_sources/Earlier Phases/earlier_phases/p2_conv.py",
+      "sha256": "8bdb046c7aef7c4cab71a37156de7ea3c19b06dd47cc7bae26d22d1185c7da60",
+      "kept_as": "src/earlier/baselines.py"
+    },
+    "Earlier Phases/earlier_phases/run_pilot.py": {
+      "archive_member": "recovered_sources/Earlier Phases/earlier_phases/run_pilot.py",
+      "sha256": "aecb79f32dbc15910722a39678e4ca8405c212b7c378ec436c95a43179ca0a84",
+      "kept_as": "src/earlier/pilot.py"
+    },
+    "Earlier Phases/earlier_phases/robust_grid.py": {
+      "archive_member": "recovered_sources/Earlier Phases/earlier_phases/robust_grid.py",
+      "sha256": "62a6ebd2c41dad74b042f2c48888f81825850f937fc032b2533ec1f9e4bc7435",
+      "kept_as": "src/earlier/robustness.py"
+    },
+    "topoperturb_benchmark/prep_real.py": {
+      "archive_member": "recovered_sources/topoperturb_benchmark/prep_real.py",
+      "sha256": "b0cbabe279d1c243527f78ffb87db5846b3047f5ad5365020f056c2c2a4201ac",
+      "kept_as": "src/prepare_data.py"
+    },
+    "topoperturb_benchmark/synth_bench.py": {
+      "archive_member": "recovered_sources/topoperturb_benchmark/synth_bench.py",
+      "sha256": "23c7d2155ba011fbaf8fad35566791f945b04cb18943dc88a7cb591c7a254741",
+      "kept_as": "src/synthetic.py"
+    },
+    "topoperturb_benchmark/make_figures.py": {
+      "archive_member": "recovered_sources/topoperturb_benchmark/make_figures.py",
+      "sha256": "bf5d4c3157bbd3bf82a25ae86f1d0b86e425d5bb6dffb1f60ba36b1c056241b4",
+      "kept_as": "src/plot_results.py"
+    },
+    "topoperturb_benchmark/topo_battery.py": {
+      "archive_member": "recovered_sources/topoperturb_benchmark/topo_battery.py",
+      "sha256": "bb051563405c398e5faec99056bb0db1757006c9e3ceda1749827959d7d93c13",
+      "kept_as": "src/methods.py"
+    },
+    "topoperturb_benchmark/concept_figure.py": {
+      "archive_member": "recovered_sources/topoperturb_benchmark/concept_figure.py",
+      "sha256": "0094f34cd607c0eb0018c0133f336aa39644b4741044aa6aebd30dd0da6bd726",
+      "kept_as": "archive only: conceptual illustration, not a benchmark result"
+    },
+    "topoperturb_benchmark/real_battery.py": {
+      "archive_member": "recovered_sources/topoperturb_benchmark/real_battery.py",
+      "sha256": "b47c39513875fdc366366278390d1e0da0b35f084cc987a414b5dc8ba34bb54b",
+      "kept_as": "src/real.py"
+    }
+  },
+  "expression": {
+    "data/expression_k562.npz": {
+      "source": "Earlier Phases/earlier_phases/k562_pilot_cache.npz",
+      "source_sha256": "a98c863ae03e2eacbb954d8011259b04072da9a3d77a72edc0fac0d6a4043cf8",
+      "sha256": "55e0987060399f9b9fec6e22f94f9e550c356b54ff9ba878389d4301b0d6aed7",
+      "arrays": {
+        "X": {
+          "shape": [
+            13534,
+            622
+          ],
+          "dtype": "float32",
+          "sha256": "014f3b47f1e8155dc0b1a9ef650fb84491cb8b86a475d96f938a3836deb92d88"
+        },
+        "lab": {
+          "shape": [
+            13534
+          ],
+          "dtype": "<U32",
+          "sha256": "2a5774f2290de04d7a6238cab542f70aa22537b10fd4f1cfd5580327e027b01b"
+        },
+        "genes": {
+          "shape": [
+            622
+          ],
+          "dtype": "<U32",
+          "sha256": "f76af8474f4f0912a563c245716e0ecec5b504d07b7e1cee82ce79a3afecda6e"
+        }
+      }
+    },
+    "data/expression_rpe1.npz": {
+      "source": "Earlier Phases/earlier_phases/rpe1_cache.npz",
+      "source_sha256": "64bab757306eb274a941259ca910d2e4f463362c4e1749bd13de8eb773adc8f5",
+      "sha256": "1913370d4b0faf5d204041fcfc8fff1fb73cc72b45f4f6cf52468a1540ebeda1",
+      "arrays": {
+        "X": {
+          "shape": [
+            91891,
+            383
+          ],
+          "dtype": "float32",
+          "sha256": "2d282d18f3672a47a07836080552fcd5bf456053301347d91376b16654cd03d2"
+        },
+        "lab": {
+          "shape": [
+            91891
+          ],
+          "dtype": "<U32",
+          "sha256": "1ef7766c80809110027739f57a46fc03e51053d3af4ce55957bf5f1ef040c3bd"
+        },
+        "genes": {
+          "shape": [
+            383
+          ],
+          "dtype": "<U32",
+          "sha256": "fc6ea1c132a8aca81486909a08cc4f9fa87627d1697691449e81ef72a3db9d77"
+        }
+      }
+    }
+  }
+}

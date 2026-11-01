@@ -1,5 +1,6 @@
 # TopoPerturb
 
+<<<<<<< HEAD
 **When does switching off a gene change the *shape* of a cell population, and when does it only move, grow or stretch it?**
 
 We test whether persistent homology (a shape-detection method from topology) finds real shape changes after CRISPR gene knockdowns, or whether it is fooled by simple geometry. The data are the CausalBench K562 and RPE1 Perturb-seq datasets.
@@ -157,3 +158,77 @@ NumPy, SciPy, pandas, scikit-learn (PCA, nearest neighbors), [ripser](https://gi
 - Repeated draws reuse cells, so they show stability, not independent replication.
 - No guide or batch metadata, so batch effects cannot be ruled out.
 - 8 K562 and 4 RPE1 knockdowns so far; one diffusion setting (15 neighbors, t = 8).
+=======
+Does knocking down a gene change the **shape** of a single-cell population — a loop
+or a split into clusters — beyond a simple shift in mean or covariance?
+
+TopoPerturb compares control and perturbed cells from CausalBench (K562, RPE1) with
+**persistent homology on spectral graph distances** (Damrich, Berens & Kobak,
+NeurIPS 2024), against conventional two-sample tests (energy distance). It is a
+small, readable pipeline built around three habits:
+
+1. **Get the data right first** — one verified source, an explicit audit, stated limits.
+2. **Verify every method against a library**, and keep the three scientific questions
+   (*differ? / beyond Gaussian? / what shape changed?*) separate.
+3. **Calibrate on negative controls** before trusting any detection.
+
+> A significant diagram difference is exploratory evidence of a structural change,
+> not a validated biological loop. See [`docs/METHODS.md`](docs/METHODS.md).
+
+## Layout
+
+```text
+topoperturb/        the package
+  data.py           load CausalBench from Hugging Face -> audited PCA clouds
+  distances.py      diffusion & effective-resistance distances on a kNN graph
+  homology.py       persistence diagrams (ripser) + diagram distance (persim)
+  twosample.py      energy / permutation / Gaussian-surrogate tests
+  features.py       interpretable loop readout (lifetime, signed change, bootstrap CI)
+  plotting.py       figures
+experiments/        thin drivers; each saves one table + one figure to results/
+docs/               DATA.md (provenance & limits), METHODS.md (formulas & checks)
+archive/            earlier exploratory phases and recovered inputs (not the pipeline)
+```
+
+## Install
+
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[verify]"
+python experiments/verify_methods.py      # cross-checks vs networkx / definitions
+```
+
+## Reproduce
+
+Each experiment is one command and writes its outputs to `results/`.
+
+```bash
+# 1. Data: fetch, audit, and build 30-PC clouds (downloads from Hugging Face once)
+python experiments/01_prepare_data.py
+#    offline, from a cached expression matrix instead of the large TSV:
+#    python experiments/01_prepare_data.py --cell-line k562 --cache archive/data/expression_k562.npz
+
+# 2a. Synthetic benchmark with known truth (geometry vs topology)
+python experiments/02_synthetic.py            # -> results/synthetic.{csv,png}
+
+# 2b. Real K562 / RPE1 knockdowns, with feature-level loop readout and diagrams
+python experiments/03_real.py                 # -> results/real.{csv,png}, real_features.csv, diagrams/
+
+# 2c. Negative-control calibration across sample sizes
+python experiments/04_calibration.py          # -> results/calibration.{csv,png}
+```
+
+Steps 2–4 use eight worker processes and take tens of minutes at full settings;
+pass a smaller repeat count (e.g. `python experiments/02_synthetic.py 10`) for a
+quick look, and `--output results/local` to avoid overwriting saved results.
+
+## What to read first
+
+- [`docs/CONTEXT.md`](docs/CONTEXT.md) — the living single-source-of-truth: data,
+  statistics, method parameters, results, papers, and versions, with a changelog.
+- [`docs/DATA.md`](docs/DATA.md) — what the data is, the upstream efficacy filter,
+  and why there is no guide/batch stratification.
+- [`docs/METHODS.md`](docs/METHODS.md) — every formula, its reference, and how it is
+  checked.
+- `results/synthetic.png` and `results/real.png` — the headline comparison figures.
+>>>>>>> 09b04c9 (changes)

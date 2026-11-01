@@ -1,0 +1,164 @@
+{
+  "date": "2026-11-01",
+  "tests": {
+    "passed": 14,
+    "expected_failures": 2,
+    "record": "..............xx                                                         [100%]\n=========================== short test summary info ============================\nXFAIL tests/test_research_checks.py::test_small_cloud_graph_boundary - Existing kNN implementation does not cap k at n-1\nXFAIL tests/test_research_checks.py::test_collapsed_cloud_rejected_clearly - Existing scale normalization divides by zero for collapsed clouds\n14 passed, 2 xfailed, 36 warnings in 1.49s\n"
+  },
+  "preservation": {
+    "all_expression_arrays_identical": true,
+    "seven_duplicate_benchmark_files_byte_identical": true,
+    "original_sources": "docs/archive.zip:recovered_sources/",
+    "removed_imports": [
+      "Earlier Phases/",
+      "topoperturb_benchmark/",
+      "Earlier Phases.zip",
+      "Topoperturb Benchmark.zip"
+    ]
+  },
+  "pca_rebuild": {
+    "Zk": {
+      "max_absolute_difference": 0.001069784164428711
+    },
+    "lk": {
+      "labels_identical": true
+    },
+    "Zr": {
+      "max_absolute_difference": 0.0016794800758361816
+    },
+    "lr": {
+      "labels_identical": true
+    }
+  },
+  "earlier_replays": {
+    "comparisons": [
+      {
+        "case": "phase1/POLRMT",
+        "matches": false,
+        "differences": {
+          "wass_H0": {
+            "replayed": 24.706711053848267,
+            "archived": 24.707043409347538
+          },
+          "wass_H1": {
+            "replayed": 8.226210119906423,
+            "archived": 8.226668621686247
+          },
+          "perm_H1_p95": {
+            "replayed": 12.082594061004338,
+            "archived": 12.082781705927026
+          }
+        }
+      },
+      {
+        "case": "phase2/normalized/POLRMT",
+        "matches": false,
+        "differences": {
+          "obs": {
+            "replayed": 1.3470065488303011,
+            "archived": 1.3470344445937907
+          },
+          "perm_p95": {
+            "replayed": 2.136899519038919,
+            "archived": 2.136976827902596
+          }
+        }
+      },
+      {
+        "case": "phase2/baseline/POLRMT/raw:centroid",
+        "matches": true,
+        "differences": {}
+      },
+      {
+        "case": "phase2/baseline/POLRMT/raw:dispersion",
+        "matches": true,
+        "differences": {}
+      },
+      {
+        "case": "phase2/baseline/POLRMT/raw:energy",
+        "matches": true,
+        "differences": {}
+      },
+      {
+        "case": "phase2/baseline/POLRMT/raw:mmd",
+        "matches": true,
+        "differences": {}
+      },
+      {
+        "case": "phase2/baseline/POLRMT/raw:cov_frob",
+        "matches": true,
+        "differences": {}
+      },
+      {
+        "case": "phase2/baseline/POLRMT/centered:energy",
+        "matches": true,
+        "differences": {}
+      },
+      {
+        "case": "phase2/baseline/POLRMT/centered:mmd",
+        "matches": true,
+        "differences": {}
+      },
+      {
+        "case": "phase2/baseline/POLRMT/cs:energy",
+        "matches": true,
+        "differences": {}
+      },
+      {
+        "case": "phase2/baseline/POLRMT/cs:mmd",
+        "matches": true,
+        "differences": {}
+      },
+      {
+        "case": "phase2/baseline/POLRMT/cs:cov_frob",
+        "matches": true,
+        "differences": {}
+      },
+      {
+        "case": "phase2/baseline/POLRMT/cs:anisotropy_PR",
+        "matches": false,
+        "differences": {
+          "obs": {
+            "replayed": 1.2163252264794675,
+            "archived": 1.2163017444804307
+          }
+        }
+      },
+      {
+        "case": "phase2/gaussian/POLRMT",
+        "matches": true,
+        "differences": {}
+      },
+      {
+        "case": "phase2/RPE1/ZMAT2",
+        "matches": false,
+        "differences": {
+          "norm_H1": {
+            "replayed": 1.2240341116663596,
+            "archived": 1.2239557820419096
+          }
+        }
+      }
+    ],
+    "warning_counts": {
+      "'oneOf' deprecated - use 'one_of'": 1,
+      "'parseString' deprecated - use 'parse_string'": 6,
+      "'resetCache' deprecated - use 'reset_cache'": 6,
+      "'enablePackrat' deprecated - use 'enable_packrat'": 1,
+      "divide by zero encountered in matmul": 22319,
+      "overflow encountered in matmul": 22319,
+      "invalid value encountered in matmul": 22319
+    }
+  },
+  "earlier_replay_exit_code": 1,
+  "interpretation": "Selected archived p-values agree. Four comparison groups have small statistic differences above rtol=1e-5, atol=1e-6; exact historical replay is not claimed. Original outputs are unchanged.",
+  "previous_benchmark_checks": "docs/archive.zip:cleanup_checks/ (five matching replays and pixel-identical figure)",
+  "final_checks": {
+    "archive_integrity": true,
+    "python_syntax": true,
+    "earlier_cli_help_passed": 9,
+    "local_documentation_links": true,
+    "pilot_null_size_explicit": 75,
+    "optional_mapper_executed": false
+  }
+}
