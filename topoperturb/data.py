@@ -13,7 +13,7 @@ Typical use (see ``experiments/01_prepare_data.py``)::
     path = fetch("k562")                 # download + checksum, or reuse the cache
     genes, counts, report = audit(path)
     X, labels, rows = select_cells(path, targets, min_cells=150)
-    Z, pca = embed(X, labels, n_pcs=30)  # one label-blind PCA per cell line
+    Z, pca = embed(X, labels, n_pcs=30)  # PCA on a reserved reference-control subset
 """
 import gzip
 import hashlib
