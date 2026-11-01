@@ -18,8 +18,9 @@ small, readable pipeline built around three habits:
 
 **Current status.** Methods verified (8/8 checks). PCA is fit on a reserved half of
 the controls that no test may draw. Calibration at 200 draws: all six methods hold
-their 5% false-positive rate (mean 0.042). Full-scale synthetic and real runs are
-still pending — do not treat the earlier smoke observations as findings.
+their 5% false-positive rate (mean 0.042). Synthetic benchmark (40 reps): spectral
+H1 finds a ring that energy distance misses, and ignores a pure translation.
+`03_real` has not been run on these clouds — do not quote the old smoke observations.
 
 ## Layout
 

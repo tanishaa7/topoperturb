@@ -5,10 +5,9 @@ whole project and make decisions: data, statistics, methods, results, papers, an
 versions. Keep it current.
 
 - **Last updated:** 2026-11-01
-- **Repo state:** clean rewrite complete; experiments verified offline (8/8 method
-  checks); PCA fit on a reserved reference half of the controls (§4); **200-draw
-  calibration done, all methods calibrated** (§7a); PCA-vs-gene-space compared (§7b);
-  **full-scale `02`/`03` not yet executed**.
+- **Repo state:** methods verified (8/8); PCA on reserved reference controls (§4);
+  **200-draw calibration done** (§7a); **synthetic benchmark done** (§7c);
+  PCA-vs-gene-space compared (§7b); **`03_real` not yet executed**.
 - **How to maintain:** when data, parameters, methods, results, or versions change,
   update the relevant section *and* add a dated line to the Changelog at the bottom.
   Numbers here must come from a real run — cite the file they came from.
@@ -181,8 +180,8 @@ and tags its outputs (`clouds_50pc.npz`, `calibration_50pc.csv`, …).
 
 ## 7. Results
 
-**Status: full-scale runs PENDING.** Only small verification/method-decision runs
-executed so far. Full audit write-up: [`docs/UPDATE_REPORT.md`](UPDATE_REPORT.md).
+**Status:** calibration (200 draws) and synthetic benchmark (40 reps) **done**. Real
+knockdowns (`03_real`) still pending. Full audit write-up: [`docs/UPDATE_REPORT.md`](UPDATE_REPORT.md).
 
 ### 7a. Calibration on the revised representation (`results/calibration.csv`)
 
@@ -230,19 +229,42 @@ and the absence of null inflation; gene space is retained as a sensitivity basel
 Leading-H1 lifetimes differ a lot between spaces (K562 control 0.119 vs 0.011), so
 always report the space alongside a loop readout.
 
-### 7c. Earlier smoke observations
+### 7c. Synthetic benchmark (`results/synthetic.csv`, `results/synthetic.png`)
 
-Observed in smoke runs (not final — low replicate counts, and these were run on the
-**old balanced-fit PCA**, so even as smoke signals they must be re-run on the
-controls-fit clouds before being read at all):
-- Synthetic: `diffusion_H1`/`effres_H1` detect the ring where `energy` does not; null and
-  pure translation stay low for PH.
-- Real: `energy` rejects all knockdowns; some genes (e.g. RPL21, CPSF3, pos. control)
-  also show `diffusion_H1`; control-vs-control stays ~0.
-- Features: `signed_change` positive for the ring (loop appeared), as expected.
+Full run: `02_synthetic.py` default, 40 replicates × 12 conditions, 480 draws, 1,085 s,
+no missing p-values. Detection rate = fraction of replicates with permutation p < 0.05.
 
-→ When full runs complete, paste the headline numbers here (detection rates, BH q-values,
-calibration false-positive rates with Wilson CIs) and link the figures.
+| Condition | energy | covariance | euclidean_H0 | euclidean_H1 | diffusion_H1 | effres_H1 |
+|---|---|---|---|---|---|---|
+| null | 0.05 | 0.02 | 0.00 | 0.00 | 0.08 | 0.05 |
+| translation | **1.00** | 0.00 | 0.08 | 0.00 | 0.00 | 0.02 |
+| scaling | **1.00** | **1.00** | 0.05 | 0.20 | 0.05 | 0.12 |
+| anisotropy | 0.02 | 0.50 | **0.98** | 0.57 | 0.05 | 0.38 |
+| heavy_tails | 0.45 | 0.05 | **1.00** | **1.00** | 0.10 | 0.85 |
+| partial_kd | **1.00** | 0.12 | 0.05 | 0.00 | 0.05 | 0.00 |
+| **ring** | 0.02 | 0.02 | 0.38 | 0.02 | **0.75** | **0.85** |
+| bimodal | 0.02 | 0.02 | 0.10 | 0.05 | 0.30 | 0.18 |
+| ring_noise_0.1 | 0.22 | 0.05 | 0.82 | 0.90 | **1.00** | **1.00** |
+| ring_noise_0.2 | 0.08 | 0.05 | 0.30 | 0.02 | **1.00** | **1.00** |
+| ring_noise_0.3 | 0.10 | 0.05 | 0.12 | 0.05 | **0.88** | 0.32 |
+| ring_noise_0.5 | 0.08 | 0.05 | 0.02 | 0.05 | 0.08 | 0.05 |
+
+**Headline.** Spectral H1 finds a ring that energy distance misses (0.75 / 0.85 vs
+0.02), while ignoring a pure translation that energy always flags (0.00 vs 1.00).
+That is the method's intended job. Diffusion H1 stays specific: it does not fire on
+scaling, anisotropy, heavy tails or a partial knockdown, whereas Euclidean PH does.
+Noise: both spectral methods are perfect at 0.1–0.2, diffusion still 0.88 at 0.3,
+both collapse at 0.5. Null rates sit at the 5% they were calibrated to.
+
+Caveat: `effres_H1` fires on heavy tails (0.85) and somewhat on anisotropy (0.38),
+so it is less specific than diffusion. Prefer `diffusion_H1` as the primary shape
+statistic; keep effective resistance as a corroborating spectral method.
+
+### 7d. Real knockdowns — pending
+
+`03_real.py 15` has not been run on the reference-fit clouds. The old smoke
+observations (energy rejecting all KDs; RPL21 / CPSF3 / pos. control also showing
+`diffusion_H1`) were produced under the **balanced-fit PCA** and must not be quoted.
 
 ## 8. Papers / references
 
@@ -266,8 +288,9 @@ huggingface_hub (latest); networkx (verify-only). Pinned in `pyproject.toml`.
 
 - [x] `04_calibration --draws 200` at 30 PCs — done, all methods calibrated (§7a).
 - [ ] `04_calibration --draws 200 --n-pcs 20` and `--n-pcs 50` for stability.
-- [ ] Run full-scale `02/03` on the reference-fit clouds; fill §7 with final numbers
-      + figures (the old smoke observations do not carry over).
+- [x] `02_synthetic` at 40 reps — done (§7c). Spectral H1 finds the ring; energy does not.
+- [ ] `03_real 15` on the reference-fit clouds; fill §7d (old smoke observations do
+      not carry over).
 - [ ] `05_compare_spaces --draws 25` — is the RPE1 POLRMT gene-space/PCA gap real?
 - [ ] Close the Damrich et al. gap: side-by-side against the authors' reference
       implementation, and re-check their `t`/`k` defaults and input space against the
@@ -318,3 +341,7 @@ huggingface_hub (latest); networkx (verify-only). Pinned in `pyproject.toml`.
   between the archived poster pipeline (`topoperturb_benchmark/`, `earlier_phases/`)
   and the current package. Stale `requirements.txt` (old pins + kmapper) now points
   at `pyproject.toml`; `CLAUDE.md` lists `05_compare_spaces`.
+- **2026-11-01** — **Synthetic benchmark complete** (40 reps, 1,085 s): spectral H1
+  finds the ring (diffusion 0.75, effres 0.85) that energy misses (0.02) and ignores
+  a pure translation (0.00 vs energy 1.00). Diffusion is more specific than
+  effective resistance (no fire on heavy tails). §7c. `03_real` still pending.
